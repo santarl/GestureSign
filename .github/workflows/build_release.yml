@@ -1,0 +1,36 @@
+name: .NET Framework Build and Artifact Upload
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Setup MSBuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # Step 3: Restore NuGet packages
+    - name: Restore NuGet Packages
+      run: nuget restore GestureSign.sln
+
+    # Step 4: Build the solution
+    - name: Build Solution
+      run: msbuild GestureSign.sln /p:Configuration=Release
+
+    # Step 5: Upload build artifacts
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build Artifacts
+        path: |
+          **/bin/Release/
