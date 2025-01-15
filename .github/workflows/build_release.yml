@@ -2,9 +2,9 @@ name: .NET Framework Build and Artifact Upload
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    tags:
+      - 'v*'  # This will trigger on tags starting with 'v', like 'v1.0.0', 'v2.3.1', etc.
+  workflow_dispatch:  # This allows manual triggering from the GitHub UI
 
 jobs:
   build:
@@ -15,19 +15,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Step 2: Setup MSBuild
+    # Step 2: Install .NET Framework 4.5.2 Developer Pack
+    - name: Install .NET Framework 4.5.2 Developer Pack
+      run: |
+        choco install netfx-4.5.2-devpack
+
+    # Step 3: Setup MSBuild
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Step 3: Restore NuGet packages
+    # Step 4: Restore NuGet packages
     - name: Restore NuGet Packages
       run: nuget restore GestureSign.sln
 
-    # Step 4: Build the solution
+    # Step 5: Build the solution
     - name: Build Solution
       run: msbuild GestureSign.sln /p:Configuration=Release
 
-    # Step 5: Upload build artifacts
+    # Step 6: Upload build artifacts
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v3
       with:
